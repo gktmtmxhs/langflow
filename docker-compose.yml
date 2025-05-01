@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  langflow-db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - type: bind
+        source: ./db_data
+        target: /var/lib/postgresql/data
+        is_directory: true
+
+  langflow:
+    image: langflowai/langflow:latest
+    ports:
+      - "7860:7860"
+    environment:
+      - LANGFLOW_SUPERUSER=${LANGFLOW_SUPERUSER}
+      - LANGFLOW_SUPERUSER_PASSWORD=${LANGFLOW_SUPERUSER_PASSWORD}
+      - LANGFLOW_DATABASE_URL=${LANGFLOW_DATABASE_URL}
+    depends_on:
+      langflow-db:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./langflow_data
+        target: /data
+        is_directory: true
